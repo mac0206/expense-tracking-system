@@ -5,7 +5,7 @@ import {
   addExpense,
   updateExpense,
   deleteExpense,
-} from "../controllers/expenseController.js";
+} from "../controllers/expensecontroller.js";
 import auth from "../Middleware/authMiddleware.js"; // 👈 import auth
 
 const router = express.Router();
