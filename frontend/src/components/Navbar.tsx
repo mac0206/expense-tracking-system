@@ -115,7 +115,7 @@ const Navbar = () => {
               navigate("/");
               setShowMobileMenu(false);
             }}
-            className="text-red-600 w-full text-left px-4 py-2 hover:bg-red-100 rounded-md"
+            className="bg-green-400 hover:bg-green-500 text-white py-2 px-4 rounded-md w-full transition-all duration-300"
           >
             Logout
           </button>
