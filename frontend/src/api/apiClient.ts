@@ -1,7 +1,9 @@
 import axios, { AxiosInstance } from "axios";
 
 const apiClient: AxiosInstance = axios.create({
-  baseURL: "http://localhost:4000/api", // Update to your deployed URL if needed
+  baseURL: "https://expense-tracking-system-8cdt.onrender.com/api", // Update to your deployed URL if needed
+  // https://expense-tracking-system-8cdt.onrender.com
+  // http://localhost:4000/api
   timeout: Infinity,
   headers: {
     "Content-Type": "application/json",
