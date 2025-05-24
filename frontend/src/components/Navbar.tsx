@@ -9,19 +9,19 @@ const Navbar = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setShowDropdown(false);
-        setShowMobileMenu(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  // useEffect(() => {
+  //   const handleClickOutside = (event: MouseEvent) => {
+  //     if (
+  //       dropdownRef.current &&
+  //       !dropdownRef.current.contains(event.target as Node)
+  //     ) {
+  //       setShowDropdown(false);
+  //       setShowMobileMenu(false);
+  //     }
+  //   };
+  //   document.addEventListener("mousedown", handleClickOutside);
+  //   return () => document.removeEventListener("mousedown", handleClickOutside);
+  // }, []);
 
   return (
     <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-md p-4">
@@ -93,7 +93,7 @@ const Navbar = () => {
           <button
             onClick={() => {
               navigate("/page");
-              setShowMobileMenu(false);
+              // setShowMobileMenu(false);
             }}
             className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md w-full transition-all duration-300"
           >
@@ -102,7 +102,7 @@ const Navbar = () => {
           <button
             onClick={() => {
               navigate("/page/myexpenses");
-              setShowMobileMenu(false);
+              // setShowMobileMenu(false);
             }}
             className="bg-green-400 hover:bg-green-500 text-white py-2 px-4 rounded-md w-full transition-all duration-300"
           >
@@ -113,7 +113,7 @@ const Navbar = () => {
               localStorage.removeItem("authToken");
               localStorage.removeItem("username");
               navigate("/");
-              setShowMobileMenu(false);
+              // setShowMobileMenu(false);
             }}
             className="bg-green-400 hover:bg-green-500 text-white py-2 px-4 rounded-md w-full transition-all duration-300"
           >
