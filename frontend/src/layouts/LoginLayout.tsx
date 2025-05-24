@@ -1,8 +1,10 @@
 import { Outlet } from "react-router-dom";
+import Navbar from "../components/Navbar";
 
-const HomeLayout = () => {
+const LoginLayout = () => {
   return (
     <div className="">
+      <Navbar />
       <div className="">
         <Outlet />
       </div>
@@ -10,4 +12,4 @@ const HomeLayout = () => {
   );
 };
 
-export default HomeLayout;
+export default LoginLayout;
