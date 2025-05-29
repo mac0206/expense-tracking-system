@@ -6,7 +6,11 @@ import { toast } from "react-toastify";
 
 const ExpensesList = () => {
   const [expenses, setExpenses] = useState<IExpensesGet[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+
   const navigate = useNavigate();
+  const username = localStorage.getItem("username");
 
   const fetchExpenses = async () => {
     try {
@@ -21,26 +25,35 @@ const ExpensesList = () => {
   const handleDelete = async (id: string) => {
     try {
       await apiClient.delete(`/expenses/${id}`);
-      setExpenses(expenses.filter((exp) => exp._id !== id));
+      setExpenses((prev) => prev.filter((exp) => exp._id !== id));
       toast.success("Expense deleted successfully");
     } catch (error) {
       toast.error("Failed to delete expense");
     }
   };
 
-  const username = localStorage.getItem("username");
-
   useEffect(() => {
+    if (!username) navigate("/");
     fetchExpenses();
-    if (!username) {
-      navigate("/");
-    }
   }, []);
+
+  // Extract unique categories from expenses
+  const categories = ["All", ...new Set(expenses.map((exp) => exp.category))];
+
+  // Filtered list based on search and category
+  const filteredExpenses = expenses.filter((expense) => {
+    const matchesSearch = expense.title
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      selectedCategory === "All" || expense.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 to-blue-300 p-6">
       <div className="max-w-4xl mx-auto px-6 py-8 bg-white rounded-xl shadow-lg">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
           <h2 className="text-3xl font-semibold text-gray-800">My Expenses</h2>
           <Link
             to="/page/addexpenses"
@@ -50,15 +63,36 @@ const ExpensesList = () => {
           </Link>
         </div>
 
+        {/* Search & Filter Controls */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          <input
+            type="text"
+            placeholder="Search by title..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full sm:w-1/2 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="w-full sm:w-1/2 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+            {categories.map((cat, idx) => (
+              <option key={idx} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+        </div>
+
         {/* No Expenses Case */}
-        {expenses.length === 0 ? (
+        {filteredExpenses.length === 0 ? (
           <p className="text-gray-500 text-center py-6 text-lg">
-            No expenses added yet.
+            No matching expenses found.
           </p>
         ) : (
           <ul className="space-y-4">
-            {/* Mapping expenses */}
-            {expenses.map((expense) => (
+            {filteredExpenses.map((expense) => (
               <li
                 key={expense._id}
                 className="border border-gray-200 rounded-lg p-5 bg-white shadow-lg hover:shadow-xl transition duration-300"

@@ -70,7 +70,7 @@ const Navbar = () => {
             </button>
 
             {showDropdown && (
-              <div className="absolute left-0 mt-3 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-20">
+              <div className="absolute left-0 mt-3 w-30 text-center bg-white border border-gray-200 rounded-md shadow-lg z-20">
                 <button
                   onClick={() => {
                     localStorage.removeItem("authToken");

@@ -1,27 +1,48 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import apiClient from "./api/apiClient";
 
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
+  const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
+
+  // ✅ Auto-fill from localStorage if rememberMe is true
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("rememberedEmail");
+    const savedPassword = localStorage.getItem("rememberedPassword");
+    const savedRemember = localStorage.getItem("rememberMe") === "true";
+
+    if (savedRemember && savedEmail && savedPassword) {
+      setForm({ email: savedEmail, password: savedPassword });
+      setRememberMe(true);
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!form.email || !form.password) {
-      return;
-    }
+    if (!form.email || !form.password) return;
 
     try {
-      console.log("Login form data:", form);
       const res = await apiClient.post("/login", form);
-      console.log("Login response:", res.data);
-
       if (res.data.token) {
+        // Save token
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("username", res.data.username);
+
+        // ✅ Save credentials if rememberMe is checked
+        if (rememberMe) {
+          localStorage.setItem("rememberedEmail", form.email);
+          localStorage.setItem("rememberedPassword", form.password);
+          localStorage.setItem("rememberMe", "true");
+        } else {
+          localStorage.removeItem("rememberedEmail");
+          localStorage.removeItem("rememberedPassword");
+          localStorage.removeItem("rememberMe");
+        }
+
         navigate("/page");
         toast.success("Login Successfully");
       }
@@ -33,7 +54,6 @@ const Login = () => {
 
   return (
     <div className="relative flex items-center justify-center h-screen bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 overflow-hidden">
-      {/* Decorative circles */}
       <div className="absolute -top-20 -left-20 w-72 h-72 bg-white opacity-20 rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
       <div className="absolute -bottom-20 -right-20 w-72 h-72 bg-yellow-200 opacity-20 rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
 
@@ -56,7 +76,7 @@ const Login = () => {
           />
         </div>
 
-        <div className="mb-6">
+        <div className="mb-4">
           <label className="block text-gray-700 text-sm mb-1">Password</label>
           <input
             type="password"
@@ -67,9 +87,24 @@ const Login = () => {
           />
         </div>
 
+        <div className="flex justify-between mb-4">
+          <section className="flex items-center">
+            <input
+              type="checkbox"
+              id="rememberMe"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="mr-2"
+            />
+            <label htmlFor="rememberMe" className="text-sm text-gray-700">
+              Remember Me
+            </label>
+          </section>
+        </div>
+
         <button
           type="submit"
-          className="w-full bg-indigo-500 text-white py-2 rounded hover:bg-indigo-600 transition"
+          className="w-full bg-indigo-500 text-white py-2 rounded hover:bg-indigo-600 active:scale-90 duration-200"
         >
           Login
         </button>
