@@ -19,11 +19,7 @@ const Home = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Show popup if user is logged in AND it's not already shown this session
-  const [showPopup, setShowPopup] = useState(() => {
-    return username && !sessionStorage.getItem("welcomePopupShown");
-  });
+  const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
     if (!username) {
@@ -31,34 +27,37 @@ const Home = () => {
       return;
     }
 
-    // Only fetch expenses if popup has been dismissed
-    if (!showPopup) {
-      setLoading(true);
-      const fetchExpenses = async () => {
-        try {
-          const response = await apiClient.get("/expenses");
-          setExpenses(response.data || []);
-          setError(null);
-        } catch (err: any) {
-          console.error("Failed to fetch expenses", err);
-          setError("Failed to load expenses. Please try again.");
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchExpenses();
+    const justLoggedIn = localStorage.getItem("justLoggedIn");
+    if (justLoggedIn === "true") {
+      setShowPopup(true);
+      localStorage.removeItem("justLoggedIn"); // Show only once
+    } else {
+      fetchExpenses(); // Fetch immediately if not just logged in
     }
-  }, [showPopup, navigate, username]);
+  }, [navigate, username]);
+
+  const fetchExpenses = async () => {
+    setLoading(true);
+    try {
+      const response = await apiClient.get("/expenses");
+      setExpenses(response.data || []);
+      setError(null);
+    } catch (err: any) {
+      console.error("Failed to fetch expenses", err);
+      setError("Failed to load expenses. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
   const expenseCount = expenses.length;
 
   const handleProceed = () => {
-    sessionStorage.setItem("welcomePopupShown", "true");
     setShowPopup(false);
+    fetchExpenses(); // Only fetch after proceeding from welcome popup
   };
 
-  // ✅ Show popup only when showPopup is true
   if (showPopup) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-300 p-6">
@@ -93,6 +92,7 @@ const Home = () => {
         totalExpenses={totalExpenses}
         expenseCount={expenseCount}
         recentExpenses={expenses.slice(0, 5)}
+        allExpenses={expenses}
       />
     </div>
   );

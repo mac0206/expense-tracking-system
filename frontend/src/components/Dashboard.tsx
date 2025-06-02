@@ -4,31 +4,34 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
+interface Expense {
+  _id: string;
+  title: string;
+  amount: number;
+  category: string;
+}
+
 interface DashboardProps {
   totalExpenses: number;
   expenseCount: number;
-  recentExpenses: {
-    _id: string;
-    title: string;
-    amount: number;
-    category: string;
-  }[];
+  allExpenses: Expense[]; // all expenses for category calculation
+  recentExpenses: Expense[]; // recent expenses for list display
 }
 
 const Dashboard: React.FC<DashboardProps> = ({
   totalExpenses,
   expenseCount,
+  allExpenses,
   recentExpenses,
 }) => {
-  // Extract unique categories
-  const categories = Array.from(new Set(recentExpenses.map((e) => e.category)));
-
-  // Calculate total amount per category
-  const amountPerCategory = categories.map((cat) => {
-    return recentExpenses
-      .filter((e) => e.category === cat)
-      .reduce((sum, e) => sum + e.amount, 0);
+  // Count categories & amounts from all expenses
+  const categoryMap = new Map<string, number>();
+  allExpenses.forEach((e) => {
+    categoryMap.set(e.category, (categoryMap.get(e.category) || 0) + e.amount);
   });
+
+  const categories = Array.from(categoryMap.keys());
+  const amountPerCategory = Array.from(categoryMap.values());
 
   // Pie chart data
   const data = {
@@ -106,8 +109,8 @@ const Dashboard: React.FC<DashboardProps> = ({
                   <p className="text-sm text-gray-600">{expense.category}</p>
                 </div>
                 <p className="font-semibold text-green-600">
-                  ₱{expense.amount?.toFixed(2)}
-                </p>{" "}
+                  ₱{expense.amount.toFixed(2)}
+                </p>
               </li>
             ))}
           </ul>

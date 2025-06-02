@@ -8,7 +8,6 @@ const Login = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
 
-  // ✅ Auto-fill from localStorage if rememberMe is true
   useEffect(() => {
     const savedEmail = localStorage.getItem("rememberedEmail");
     const savedPassword = localStorage.getItem("rememberedPassword");
@@ -28,11 +27,10 @@ const Login = () => {
     try {
       const res = await apiClient.post("/login", form);
       if (res.data.token) {
-        // Save token
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("username", res.data.username);
+        localStorage.setItem("justLoggedIn", "true"); // ✅ Important
 
-        // ✅ Save credentials if rememberMe is checked
         if (rememberMe) {
           localStorage.setItem("rememberedEmail", form.email);
           localStorage.setItem("rememberedPassword", form.password);
@@ -43,12 +41,12 @@ const Login = () => {
           localStorage.removeItem("rememberMe");
         }
 
-        navigate("/page");
         toast.success("Login Successfully");
+        navigate("/page"); // ✅ Update route to your actual Home path
       }
     } catch (err: any) {
       console.log("Login error:", err.response);
-      toast.error(err.response.data?.message);
+      toast.error(err.response?.data?.message || "Login failed");
     }
   };
 
