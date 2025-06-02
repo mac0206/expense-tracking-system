@@ -111,7 +111,7 @@ const Login = () => {
           Don't have an account?{" "}
           <button
             type="button"
-            onClick={() => navigate("/Signup")}
+            onClick={() => navigate("/signup")}
             className="text-indigo-600 hover:underline"
           >
             Sign up here
